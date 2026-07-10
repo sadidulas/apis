@@ -67,7 +67,7 @@ export default function Footer() {
       <div className="footer-bottom">
         <span>&copy; {new Date().getFullYear()} Free API. Built with the help of sadidul mehal.</span>
         <span style={{ display: 'flex', gap: 16 }}>
-          <a href="https://github.com/sadidulas/apis" target="_blank" rel="noreferrer"><Github size={16} /></a>
+          <a href="https://github.com/sadidulas/apis" target="_blank" rel="noreferrer"><GitFork size={16} /></a>
         </span>
       </div>
     </footer>
