@@ -2,9 +2,7 @@
    FREE API — Miro-Inspired Design System
    ═══════════════════════════════════════════════════════════════════════════ */
 
-/* ─── Fonts ────────────────────────────────────────────────────────────── */
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@300;400;500;600;700;800&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;500;600&display=swap');
+/* Fonts are loaded via <link> tags in index.html */
 
 /* ─── CSS Custom Properties ────────────────────────────────────────────── */
 :root {
