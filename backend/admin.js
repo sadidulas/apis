@@ -23,15 +23,13 @@ router.post('/login', (req, res) => {
 // ─── Admin Profile ───────────────────────────────────────────────────────────
 
 router.get('/profile', requireAdmin, (req, res) => {
-  const db = require('../db');
-  const admin = db.getDb().prepare('SELECT username, email FROM admin_users WHERE username = ?').get(req.admin.username);
+  const admin = db.getAdminProfile(req.admin.username);
   res.json(admin || { username: req.admin.username, email: '' });
 });
 
 router.put('/profile', requireAdmin, (req, res) => {
   const { email } = req.body;
   if (!email) return res.status(400).json({ error: 'Email is required' });
-  const db = require('../db');
   db.updateAdminProfile(req.admin.username, email);
   res.json({ message: 'Profile updated', email });
 });
@@ -44,7 +42,6 @@ router.put('/password', requireAdmin, (req, res) => {
   if (newPassword.length < 6) {
     return res.status(400).json({ error: 'New password must be at least 6 characters' });
   }
-  const db = require('../db');
   const success = db.updateAdminPassword(req.admin.username, currentPassword, newPassword);
   if (!success) return res.status(401).json({ error: 'Current password is incorrect' });
   res.json({ message: 'Password updated successfully' });

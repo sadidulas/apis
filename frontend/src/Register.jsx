@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { UserPlus, Mail, Lock, User, Key, AlertCircle, Loader2, CheckCircle } from 'lucide-react';
 
 export default function Register() {
   const [form, setForm] = useState({ name: '', email: '', password: '' });
@@ -94,7 +95,7 @@ export default function Register() {
             </div>
             <button type="submit" className="btn btn-primary"
               style={{ width: '100%', justifyContent: 'center' }} disabled={loading}>
-              {loading ? <span className="spinner" /> : 'Create Account'}
+              {loading ? <Loader2 size={16} className="spinner" /> : <><UserPlus size={16} /> Create Account</>}
             </button>
           </form>
         )}

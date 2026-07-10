@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { Beaker, Send, Key, RotateCcw, Trash2, AlertCircle, Loader2, Copy, Check, Terminal } from 'lucide-react';
 
 export default function Playground() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -94,7 +95,7 @@ export default function Playground() {
         flexWrap: 'wrap',
         flexShrink: 0
       }}>
-        <h2 style={{ fontSize: '1.1rem', fontWeight: 600, whiteSpace: 'nowrap' }}>🎮 Playground</h2>
+        <h2 style={{ fontSize: '1.1rem', fontWeight: 500, whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 8 }}><Beaker size={18} /> Playground</h2>
 
         <select
           className="form-input"

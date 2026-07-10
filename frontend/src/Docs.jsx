@@ -1,4 +1,5 @@
 import React from 'react';
+import { BookOpen, Terminal, Code, Braces, AlertCircle, AlertTriangle, CheckCircle, Info } from 'lucide-react';
 
 const curlChat = `curl https://free-apis-b1hi.onrender.com/api/v1/chat/completions \\
   -H "Content-Type: application/json" \\
@@ -71,11 +72,12 @@ export default function Docs() {
   return (
     <div className="page">
       {/* Hero */}
-      <section className="hero-band" style={{ padding: '48px 0' }}>
+      <section className="hero-band">
         <div className="container">
           <div className="hero-content">
+            <div className="hero-tag"><BookOpen size={14} /> Documentation</div>
             <h1 style={{ fontSize: 48 }}>API Documentation</h1>
-            <p>Everything you need to integrate with Free API</p>
+            <p className="hero-subtitle">Everything you need to integrate with Free API</p>
           </div>
         </div>
       </section>

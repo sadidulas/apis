@@ -28,7 +28,7 @@ function requireApiKey(req, res, next) {
     return res.status(401).json({ error: 'Unauthorized: No API key provided' });
   }
 
-  const db = require('../db');
+  const db = require('./db');
   const keyRecord = db.validateApiKey(apiKey);
   if (!keyRecord) {
     return res.status(403).json({ error: 'Forbidden: Invalid or inactive API key' });

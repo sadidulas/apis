@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Shield, Lock, User, AlertCircle, Loader2 } from 'lucide-react';
 
 export default function AdminLogin() {
   const [username, setUsername] = useState('');
@@ -83,7 +84,7 @@ export default function AdminLogin() {
             style={{ width: '100%', justifyContent: 'center', marginTop: 8 }}
             disabled={loading}
           >
-            {loading ? <span className="spinner" /> : 'Sign In'}
+            {loading ? <Loader2 size={16} className="spinner" /> : <><Shield size={16} /> Sign In</>}
           </button>
         </form>
       </div>

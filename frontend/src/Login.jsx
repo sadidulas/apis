@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { LogIn, Mail, Lock, AlertCircle, Loader2 } from 'lucide-react';
 
 export default function Login() {
   const [form, setForm] = useState({ email: '', password: '' });
@@ -66,7 +67,7 @@ export default function Login() {
           </div>
           <button type="submit" className="btn btn-primary"
             style={{ width: '100%', justifyContent: 'center' }} disabled={loading}>
-            {loading ? <span className="spinner" /> : 'Sign In'}
+            {loading ? <Loader2 size={16} className="spinner" /> : <><LogIn size={16} /> Sign In</>}
           </button>
         </form>
 

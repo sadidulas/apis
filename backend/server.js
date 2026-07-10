@@ -16,11 +16,11 @@ async function start() {
   await db.init();
   initTables().catch(e => console.log('Supabase init note:', e.message));
 
-// API Routes
-const adminRoutes = require('./admin');
-const apiRoutes = require('./api');
-const publicRoutes = require('./public');
-const authRoutes = require('./auth');
+  // API Routes
+  const adminRoutes = require('./admin');
+  const apiRoutes = require('./api');
+  const publicRoutes = require('./public');
+  const authRoutes = require('./auth');
 
   app.use('/api/admin', adminRoutes);
   app.use('/api/v1', apiRoutes);

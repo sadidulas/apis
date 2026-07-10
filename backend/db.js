@@ -394,8 +394,14 @@ function getTotalModelApis() {
   return row ? row.count : 0;
 }
 
+function getAdminProfile(username) {
+  return queryOne('SELECT username, email FROM admin_users WHERE username = ?', [username]);
+}
+
 module.exports = {
   init,
+  queryOne,
+  queryAll,
   getAllModels,
   getActiveModels,
   getModelById,
@@ -429,5 +435,6 @@ module.exports = {
   getUserByEmail,
   getUserApiKeys,
   createUserApiKey,
-  deleteUserApiKey
+  deleteUserApiKey,
+  getAdminProfile
 };

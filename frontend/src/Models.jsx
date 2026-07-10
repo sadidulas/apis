@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { Search, Grid3X3, Brain, MessageSquare, ArrowRight, AlertCircle, Loader2 } from 'lucide-react';
 
 const providers = ['all', 'openai', 'anthropic', 'custom'];
 const providerLabels = { openai: 'OpenAI', anthropic: 'Anthropic', custom: 'Custom' };
@@ -41,12 +42,12 @@ export default function Models() {
   return (
     <div className="page">
       {/* Hero */}
-      <section className="hero-band" style={{ padding: '48px 0' }}>
+      <section className="hero-band">
         <div className="container">
           <div className="hero-content">
-            <div className="hero-badge">🔍 Browse Models</div>
+            <div className="hero-tag"><Grid3X3 size={14} /> Browse Models</div>
             <h1 style={{ fontSize: 48 }}>AI Models Hub</h1>
-            <p>Discover available AI models and test them instantly</p>
+            <p className="hero-subtitle">Discover available AI models and test them instantly</p>
           </div>
         </div>
       </section>
@@ -55,13 +56,15 @@ export default function Models() {
         {/* Search + Filter Bar */}
         <div className="card" style={{ marginBottom: 24, padding: 20 }}>
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
-            <div className="form-group" style={{ flex: '1 1 300px', marginBottom: 0 }}>
+            <div className="form-group" style={{ flex: '1 1 300px', marginBottom: 0, position: 'relative' }}>
+              <Search size={16} style={{ position: 'absolute', left: 14, top: 13, color: 'var(--steel)' }} />
               <input
                 className="form-input"
                 type="search"
                 placeholder="Search models by name or description..."
                 value={search}
                 onChange={e => setSearch(e.target.value)}
+                style={{ paddingLeft: 36 }}
               />
             </div>
             <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
@@ -81,7 +84,7 @@ export default function Models() {
 
         {/* Results */}
         {loading ? (
-          <div style={{ textAlign: 'center', padding: 60 }}><span className="spinner" /></div>
+          <div style={{ textAlign: 'center', padding: 60 }}><Loader2 size={32} className="spinner" /></div>
         ) : error ? (
           <div className="alert alert-error">{error}</div>
         ) : filtered.length === 0 ? (
@@ -125,7 +128,7 @@ export default function Models() {
                   className="btn btn-primary btn-sm"
                   style={{ alignSelf: 'flex-start' }}
                 >
-                  Try in Playground →
+                  <MessageSquare size={14} /> Try in Playground <ArrowRight size={14} />
                 </Link>
               </div>
             ))}

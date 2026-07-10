@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { LayoutDashboard, Key, Plus, Trash2, Copy, Rocket, Loader2 } from 'lucide-react';
 
 export default function UserDashboard() {
   const navigate = useNavigate();
@@ -75,18 +76,18 @@ export default function UserDashboard() {
     setTimeout(() => setToast(''), 2000);
   };
 
-  if (loading) return <div style={{ textAlign: 'center', padding: 80 }}><span className="spinner" /></div>;
+  if (loading) return <div style={{ textAlign: 'center', padding: 80 }}><Loader2 size={32} className="spinner" /></div>;
   if (error) return <div className="login-page"><div className="alert alert-error">{error}</div></div>;
 
   return (
     <div className="page">
       {/* Hero */}
-      <section className="hero-band" style={{ padding: '40px 0' }}>
+      <section className="hero-band">
         <div className="container">
           <div className="hero-content">
-            <div className="hero-badge">👤 My Dashboard</div>
+            <div className="hero-tag"><LayoutDashboard size={14} /> My Dashboard</div>
             <h1 style={{ fontSize: 40 }}>Welcome, {user?.name}</h1>
-            <p style={{ fontSize: '1rem' }}>{user?.email} &mdash; Manage your API keys</p>
+            <p className="hero-subtitle" style={{ fontSize: '1rem' }}>{user?.email} &mdash; Manage your API keys</p>
           </div>
         </div>
       </section>
@@ -97,7 +98,7 @@ export default function UserDashboard() {
         {/* Quick Start */}
         <div className="card" style={{ marginBottom: 24 }}>
           <div className="card-header">
-            <h3>🚀 Quick Start</h3>
+            <h3 style={{ display: 'flex', alignItems: 'center', gap: 8 }}><Rocket size={18} /> Quick Start</h3>
           </div>
           <div style={{ fontSize: '0.9rem', color: 'var(--slate)', lineHeight: 1.7 }}>
             <p>Use your API key to call any model:</p>
@@ -135,13 +136,13 @@ curl https://free-apis-b1hi.onrender.com/api/v1/chat/completions \\
                 placeholder="e.g. My App" onKeyDown={e => e.key === 'Enter' && handleCreate()} />
             </div>
             <button className="btn btn-primary btn-sm" onClick={handleCreate} disabled={!newKeyName.trim()}>
-              + Generate Key
+              <Plus size={14} /> Generate Key
             </button>
           </div>
         </div>
 
         {/* Keys List */}
-        <h3 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: 12 }}>🔑 My API Keys</h3>
+        <h3 style={{ fontSize: '1.1rem', fontWeight: 500, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}><Key size={18} /> My API Keys</h3>
 
         {keys.length === 0 ? (
           <div className="card">
@@ -169,8 +170,8 @@ curl https://free-apis-b1hi.onrender.com/api/v1/chat/completions \\
                       <td><strong>{k.name}</strong></td>
                       <td>
                         <code style={{ fontSize: '0.78rem', color: 'var(--steel)' }}>{k.key.substring(0, 14)}...</code>
-                        <button className="copy-btn" style={{ marginLeft: 6, padding: '2px 6px', fontSize: '0.7rem' }}
-                          onClick={() => copy(k.key, 'Copied!')}>Copy</button>
+                        <button className="copy-btn" style={{ marginLeft: 6, padding: '2px 8px', fontSize: '0.7rem', display: 'inline-flex', alignItems: 'center', gap: 4 }}
+                          onClick={() => copy(k.key, 'Copied!')}><Copy size={10} /> Copy</button>
                       </td>
                       <td style={{ fontSize: '0.8rem', color: 'var(--stone)' }}>
                         {new Date(k.created_at).toLocaleDateString()}
@@ -184,7 +185,7 @@ curl https://free-apis-b1hi.onrender.com/api/v1/chat/completions \\
                         </span>
                       </td>
                       <td style={{ textAlign: 'right' }}>
-                        <button className="btn btn-danger btn-xs" onClick={() => handleDelete(k.id)}>Delete</button>
+                        <button className="btn btn-danger btn-xs" style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }} onClick={() => handleDelete(k.id)}><Trash2 size={12} /> Delete</button>
                       </td>
                     </tr>
                   ))}

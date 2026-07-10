@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { Zap, Grid3X3, Beaker, BookOpen, LayoutDashboard, Shield, LogOut } from 'lucide-react';
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -20,24 +21,24 @@ export default function Navbar() {
     <nav className="navbar">
       <div className="navbar-inner">
         <Link to="/" className="navbar-brand">
-          <div className="logo-mark">F</div>
+          <div className="logo-mark"><Zap size={18} /></div>
           Free API
         </Link>
         <div className="navbar-links">
-          <NavLink to="/" end>Home</NavLink>
-          <NavLink to="/models">Models</NavLink>
-          <NavLink to="/playground">Playground</NavLink>
-          <NavLink to="/docs">Docs</NavLink>
+          <NavLink to="/" end><span>Home</span></NavLink>
+          <NavLink to="/models"><Grid3X3 size={14} /><span>Models</span></NavLink>
+          <NavLink to="/playground"><Beaker size={14} /><span>Playground</span></NavLink>
+          <NavLink to="/docs"><BookOpen size={14} /><span>Docs</span></NavLink>
           {userToken ? (
-            <NavLink to="/dashboard">Dashboard</NavLink>
+            <NavLink to="/dashboard"><LayoutDashboard size={14} /><span>Dashboard</span></NavLink>
           ) : null}
           {adminToken ? (
-            <NavLink to="/admin">Admin</NavLink>
+            <NavLink to="/admin"><Shield size={14} /><span>Admin</span></NavLink>
           ) : null}
           {userToken ? (
-            <button onClick={handleUserLogout}>Logout</button>
+            <button onClick={handleUserLogout}><LogOut size={14} /></button>
           ) : adminToken ? (
-            <button onClick={handleAdminLogout}>Logout</button>
+            <button onClick={handleAdminLogout}><LogOut size={14} /></button>
           ) : (
             <Link to="/login" className="navbar-cta">Sign In</Link>
           )}
