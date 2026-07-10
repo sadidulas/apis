@@ -34,7 +34,7 @@ const features = [
   }
 ];
 
-const codeSnippet = `curl https://free-api.onrender.com/api/v1/chat/completions \\
+const codeSnippet = `curl https://free-apis-b1hi.onrender.com/api/v1/chat/completions \\
   -H "Content-Type: application/json" \\
   -H "x-api-key: fk-your-api-key" \\
   -d '{

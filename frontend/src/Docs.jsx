@@ -1,6 +1,6 @@
 import React from 'react';
 
-const curlChat = `curl https://free-api.onrender.com/api/v1/chat/completions \\
+const curlChat = `curl https://free-apis-b1hi.onrender.com/api/v1/chat/completions \\
   -H "Content-Type: application/json" \\
   -H "x-api-key: fk-your-api-key" \\
   -d '{
@@ -10,10 +10,10 @@ const curlChat = `curl https://free-api.onrender.com/api/v1/chat/completions \\
     ]
   }'`;
 
-const curlModels = `curl https://free-api.onrender.com/api/v1/models \\
+const curlModels = `curl https://free-apis-b1hi.onrender.com/api/v1/models \\
   -H "x-api-key: fk-your-api-key"`;
 
-const nodeCode = `const response = await fetch('https://free-api.onrender.com/api/v1/chat/completions', {
+const nodeCode = `const response = await fetch('https://free-apis-b1hi.onrender.com/api/v1/chat/completions', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
@@ -32,7 +32,7 @@ console.log(data.choices[0].message.content);`;
 const pythonCode = `import requests
 
 response = requests.post(
-    'https://free-api.onrender.com/api/v1/chat/completions',
+    'https://free-apis-b1hi.onrender.com/api/v1/chat/completions',
     headers={
         'Content-Type': 'application/json',
         'x-api-key': 'fk-your-api-key'
@@ -131,7 +131,7 @@ export default function Docs() {
           <p>For Anthropic-style integration with Claude models.</p>
           <div className="code-block">
             <span className="comment"># Anthropic-style request</span>{'\n'}
-            {`curl https://free-api.onrender.com/api/v1/messages \\
+            {`curl https://free-apis-b1hi.onrender.com/api/v1/messages \\
   -H "Content-Type: application/json" \\
   -H "x-api-key: fk-your-api-key" \\
   -d '{

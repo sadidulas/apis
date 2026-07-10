@@ -102,7 +102,7 @@ export default function UserDashboard() {
           <div style={{ fontSize: '0.9rem', color: 'var(--slate)', lineHeight: 1.7 }}>
             <p>Use your API key to call any model:</p>
             <div className="code-block" style={{ margin: '8px 0' }}>{`
-curl https://free-api.onrender.com/api/v1/chat/completions \\
+curl https://free-apis-b1hi.onrender.com/api/v1/chat/completions \\
   -H "Content-Type: application/json" \\
   -H "x-api-key: YOUR_API_KEY" \\
   -d '{"model": "model-name", "messages": [{"role": "user", "content": "Hello!"}]}'
