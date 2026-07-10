@@ -34,7 +34,8 @@ echo   Models:     http://localhost:3001/models
 echo   Playground: http://localhost:3001/playground
 echo   Docs:       http://localhost:3001/docs
 echo.
-echo Storage: Supabase (persistent)
+echo Production:  https://free-apis-b1hi.onrender.com
+echo Storage:     Supabase (persistent)
 echo ========================================
 echo.
 
