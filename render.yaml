@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: free-api
+    runtime: node
+    plan: free
+    buildCommand: npm install && cd backend && npm install && cd ../frontend && npm install && npm run build
+    startCommand: cd backend && node server.js
+    envVars:
+      - key: PORT
+        value: 3001
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ADMIN_PASSWORD
+        value: sadidulmehal
+      - key: SUPABASE_URL
+        value: https://kqroiwwpmglqxodunyse.supabase.co
+      - key: SUPABASE_ANON_KEY
+        value: sb_publishable_m3FQBS_YuFyYqOlDZCs56A_uscpxlIb
+      - key: SUPABASE_SERVICE_KEY
+        value: sb_publishable_m3FQBS_YuFyYqOlDZCs56A_uscpxlIb
