@@ -3,10 +3,99 @@ const router = express.Router();
 const db = require('./db');
 const { requireApiKey } = require('./middleware-auth');
 
+// ─── Model lookup with Supabase fallback ────────────────────────────────────
+
+async function findModelWithApis(modelName) {
+  // Try SQLite first
+  const modelConfig = db.getModelByName(modelName);
+  if (modelConfig && modelConfig.active) {
+    const apis = db.getActiveModelApis(modelConfig.id);
+    return { modelConfig, apis };
+  }
+
+  // Fallback: try Supabase (models may exist there after Render restart)
+  try {
+    const { supabase } = require('./supabase');
+    const result = await supabase
+      .from('models')
+      .select('*')
+      .eq('name', modelName)
+      .eq('active', true)
+      .single();
+
+    if (result.data) {
+      const { data: supabaseApis } = await supabase
+        .from('model_apis')
+        .select('*')
+        .eq('model_id', result.data.id)
+        .eq('active', true)
+        .order('priority');
+
+      if (supabaseApis && supabaseApis.length > 0) {
+        // Sync model to SQLite for future requests
+        try {
+          db.createModel({
+            name: result.data.name,
+            system_prompt: result.data.system_prompt || '',
+            temperature: result.data.temperature ?? 0.7,
+            max_tokens: result.data.max_tokens ?? 4096
+          });
+          const syncedModel = db.getModelByName(modelName);
+          if (syncedModel) {
+            for (let i = 0; i < supabaseApis.length; i++) {
+              const a = supabaseApis[i];
+              db.addModelApi({
+                model_id: syncedModel.id,
+                provider: a.provider || 'custom',
+                base_url: a.base_url,
+                api_key: a.api_key,
+                model_id_provider: a.model_id_provider,
+                priority: a.priority ?? i
+              });
+            }
+            return { modelConfig: syncedModel, apis: db.getActiveModelApis(syncedModel.id) };
+          }
+        } catch (e) {
+          console.log('Sync to SQLite failed (non-critical):', e.message);
+        }
+
+        // Return from Supabase data directly if sync failed
+        return {
+          modelConfig: result.data,
+          apis: supabaseApis
+        };
+      }
+    }
+  } catch (e) {
+    console.log('Supabase fallback lookup failed:', e.message);
+  }
+
+  return { modelConfig: null, apis: [] };
+}
+
 // ─── List available models ────────────────────────────────────────────────────
 
-router.get('/models', requireApiKey, (req, res) => {
-  const models = db.getActiveModels();
+router.get('/models', requireApiKey, async (req, res) => {
+  let models = db.getActiveModels();
+
+  // Also include Supabase models that might not be in SQLite
+  try {
+    const { supabase } = require('./supabase');
+    const { data: supabaseModels } = await supabase
+      .from('models')
+      .select('name, created_at')
+      .eq('active', true);
+
+    if (supabaseModels) {
+      const sqliteNames = new Set(models.map(m => m.name));
+      for (const sm of supabaseModels) {
+        if (!sqliteNames.has(sm.name)) {
+          models.push({ name: sm.name, created_at: sm.created_at });
+        }
+      }
+    }
+  } catch (e) { /* non-critical */ }
+
   res.json({
     object: 'list',
     data: models.map(m => ({
@@ -26,12 +115,11 @@ router.post('/chat/completions', requireApiKey, async (req, res) => {
     return res.status(400).json({ error: 'model and messages are required' });
   }
 
-  const modelConfig = db.getModelByName(model);
+  const { modelConfig, apis } = await findModelWithApis(model);
   if (!modelConfig || !modelConfig.active) {
     return res.status(404).json({ error: `Model '${model}' not found or inactive` });
   }
 
-  const apis = db.getActiveModelApis(modelConfig.id);
   if (apis.length === 0) {
     return res.status(503).json({ error: `Model '${model}' has no active API endpoints configured` });
   }
@@ -91,12 +179,11 @@ router.post('/messages', requireApiKey, async (req, res) => {
     return res.status(400).json({ error: 'model and messages are required' });
   }
 
-  const modelConfig = db.getModelByName(model);
+  const { modelConfig, apis } = await findModelWithApis(model);
   if (!modelConfig || !modelConfig.active) {
     return res.status(404).json({ error: `Model '${model}' not found or inactive` });
   }
 
-  const apis = db.getActiveModelApis(modelConfig.id);
   if (apis.length === 0) {
     return res.status(503).json({ error: `Model '${model}' has no active API endpoints configured` });
   }
