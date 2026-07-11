@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 const db = require('./db');
-const { supabase } = require('./supabase');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'free-api-jwt-secret-change-in-production';
 
@@ -39,7 +38,6 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ error: 'Password must be at least 6 characters' });
     }
 
-    // Check if user exists
     const existing = db.getUserByEmail(email);
     if (existing) {
       return res.status(409).json({ error: 'An account with this email already exists' });
@@ -47,22 +45,6 @@ router.post('/register', async (req, res) => {
 
     const user = db.createUser({ email, password, name });
     const token = generateToken(user);
-
-    // Sync user to Supabase
-    try {
-      const { data: sbUser } = await supabase.from('users').insert({
-        email: user.email, name: user.name,
-        password_hash: require('crypto').createHash('sha256').update(password).digest('hex')
-      }).select('id').single();
-      // Sync API key to Supabase too
-      if (sbUser && user.api_key) {
-        await supabase.from('api_keys').insert({
-          key: user.api_key, name: 'Default Key', user_id: sbUser.id, active: true
-        });
-      }
-    } catch (e) {
-      console.log('Supabase user sync (non-critical):', e.message);
-    }
 
     res.status(201).json({
       token,
@@ -86,6 +68,7 @@ router.post('/login', async (req, res) => {
     if (!user) {
       // Fallback: try Supabase
       try {
+        const { supabase } = require('./supabase');
         const hash = require('crypto').createHash('sha256').update(password).digest('hex');
         const { data: sbUser } = await supabase
           .from('users')
@@ -94,7 +77,6 @@ router.post('/login', async (req, res) => {
           .single();
         if (sbUser && sbUser.password_hash === hash) {
           user = { id: sbUser.id, email: sbUser.email, name: sbUser.name };
-          // Sync user back to SQLite
           try {
             db.execute(
               'INSERT OR IGNORE INTO users (id, email, password_hash, name) VALUES (?, ?, ?, ?)',
@@ -109,7 +91,6 @@ router.post('/login', async (req, res) => {
     }
 
     const token = generateToken(user);
-
     res.json({
       token,
       user: { id: user.id, email: user.email, name: user.name }
@@ -136,18 +117,6 @@ router.post('/apikeys', requireUser, async (req, res) => {
   const { name } = req.body;
   if (!name) return res.status(400).json({ error: 'Name is required' });
   const result = db.createUserApiKey(req.user.id, name);
-  // Sync to Supabase
-  try {
-    const { data: sbUser } = await supabase
-      .from('users').select('id').eq('email', req.user.email).single();
-    if (sbUser) {
-      await supabase.from('api_keys').insert({
-        key: result.key, name: result.name, user_id: sbUser.id, active: true
-      });
-    }
-  } catch (e) {
-    console.log('Supabase user API key sync (non-critical):', e.message);
-  }
   res.status(201).json(result);
 });
 

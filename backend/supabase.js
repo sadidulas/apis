@@ -70,6 +70,12 @@ async function initTables() {
       error_message TEXT,
       created_at TIMESTAMPTZ DEFAULT NOW()
     );
+
+    CREATE TABLE IF NOT EXISTS public.app_state (
+      key TEXT PRIMARY KEY,
+      value TEXT NOT NULL,
+      updated_at TIMESTAMPTZ DEFAULT NOW()
+    );
   `;
 
   // Execute via REST API (raw SQL)
@@ -109,4 +115,58 @@ async function initTables() {
   }
 }
 
-module.exports = { supabase, initTables, SUPABASE_URL };
+// ─── Database binary backup (save/restore entire SQLite file) ────────────────
+
+async function backupDatabase() {
+  const fs = require('fs');
+  const path = require('path');
+  const dbPath = path.join(__dirname, 'free-api.db');
+  try {
+    if (!fs.existsSync(dbPath)) return;
+    const buffer = fs.readFileSync(dbPath);
+    const base64 = buffer.toString('base64');
+    // Upsert into app_state table
+    const { data: existing } = await supabase
+      .from('app_state')
+      .select('key')
+      .eq('key', 'sqlite_backup')
+      .single();
+    if (existing) {
+      await supabase.from('app_state')
+        .update({ value: base64, updated_at: new Date().toISOString() })
+        .eq('key', 'sqlite_backup');
+    } else {
+      await supabase.from('app_state')
+        .insert({ key: 'sqlite_backup', value: base64 });
+    }
+    console.log('DB backed up to Supabase');
+  } catch (e) {
+    console.log('Supabase backup failed (non-critical):', e.message.substring(0, 80));
+  }
+}
+
+async function restoreDatabase() {
+  const fs = require('fs');
+  const path = require('path');
+  const dbPath = path.join(__dirname, 'free-api.db');
+  try {
+    const { data, error } = await supabase
+      .from('app_state')
+      .select('value')
+      .eq('key', 'sqlite_backup')
+      .single();
+    if (error || !data) {
+      console.log('No Supabase backup found');
+      return false;
+    }
+    const buffer = Buffer.from(data.value, 'base64');
+    fs.writeFileSync(dbPath, buffer);
+    console.log('DB restored from Supabase backup');
+    return true;
+  } catch (e) {
+    console.log('Supabase restore failed:', e.message.substring(0, 80));
+    return false;
+  }
+}
+
+module.exports = { supabase, initTables, backupDatabase, restoreDatabase, SUPABASE_URL };

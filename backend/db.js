@@ -5,6 +5,18 @@ const crypto = require('crypto');
 
 const DB_PATH = path.join(__dirname, 'free-api.db');
 let db = null;
+let backupTimer = null;
+
+// Backup to Supabase (debounced, non-blocking)
+function scheduleBackup() {
+  if (backupTimer) clearTimeout(backupTimer);
+  backupTimer = setTimeout(async () => {
+    try {
+      const { backupDatabase } = require('./supabase');
+      await backupDatabase();
+    } catch (e) { /* silent */ }
+  }, 2000);
+}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -27,17 +39,15 @@ function queryOne(sql, params = []) {
 }
 
 function execute(sql, params = []) {
-  const stmt = db.prepare(sql);
-  if (params.length) stmt.bind(params);
-  stmt.run();
+  db.run(sql, params);
   const changes = db.getRowsModified();
-  stmt.free();
   save();
   return { changes };
 }
 
 function insert(sql, params = []) {
-  execute(sql, params);
+  db.run(sql, params);
+  save();
   const row = queryOne('SELECT last_insert_rowid() as id');
   return row ? row.id : null;
 }
@@ -46,6 +56,7 @@ function save() {
   try {
     const data = db.export();
     fs.writeFileSync(DB_PATH, Buffer.from(data));
+    scheduleBackup(); // async backup to Supabase
   } catch (e) {
     console.error('DB save error:', e.message);
   }
@@ -59,8 +70,21 @@ async function init() {
     const buffer = fs.readFileSync(DB_PATH);
     db = new SQL.Database(buffer);
   } else {
-    db = new SQL.Database();
-    console.log('[DB] Created new database');
+    // Try restoring from Supabase backup
+    try {
+      const { restoreDatabase } = require('./supabase');
+      const restored = await restoreDatabase();
+      if (restored && fs.existsSync(DB_PATH)) {
+        const buffer = fs.readFileSync(DB_PATH);
+        db = new SQL.Database(buffer);
+      } else {
+        db = new SQL.Database();
+        console.log('[DB] Created new database');
+      }
+    } catch (e) {
+      db = new SQL.Database();
+      console.log('[DB] Created new database');
+    }
   }
   createTables();
   seedAdmin();
