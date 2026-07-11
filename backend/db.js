@@ -196,6 +196,10 @@ function getActiveModelApis(modelId) {
   return queryAll('SELECT * FROM model_apis WHERE model_id = ? AND active = 1 ORDER BY priority ASC', [modelId]);
 }
 
+function getModelApi(id) {
+  return queryOne('SELECT * FROM model_apis WHERE id = ?', [id]);
+}
+
 function addModelApi({ model_id, provider, base_url, api_key, model_id_provider, priority }) {
   const row = queryOne(
     'SELECT COALESCE(MAX(priority), -1) + 1 as next FROM model_apis WHERE model_id = ?', [model_id]
@@ -411,6 +415,7 @@ module.exports = {
   deleteModel,
   getModelApis,
   getActiveModelApis,
+  getModelApi,
   addModelApi,
   updateModelApi,
   deleteModelApi,
