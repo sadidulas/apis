@@ -117,7 +117,10 @@ router.post('/messages', requireApiKey, async (req, res) => {
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 60000);
 
-      let baseUrl = apiConfig.base_url.replace(/\/+$/, '');
+      let baseUrl = apiConfig.base_url
+        .replace(/\/+$/, '')
+        .replace(/\/messages\/?$/i, '')
+        .replace(/\/chat\/completions\/?$/i, '');
 
       const response = await fetch(`${baseUrl}/messages`, {
         method: 'POST',
@@ -188,7 +191,11 @@ function buildMessages(userMessages, systemPrompt) {
 }
 
 async function tryProvider(apiConfig, messages, temperature, max_tokens, modelConfig) {
-  let baseUrl = apiConfig.base_url.replace(/\/+$/, '');
+  // Remove trailing slash and strip common endpoint paths to prevent double-appending
+  let baseUrl = apiConfig.base_url
+    .replace(/\/+$/, '')
+    .replace(/\/chat\/completions\/?$/i, '')
+    .replace(/\/messages\/?$/i, '');
   const isAnthropic = baseUrl.includes('anthropic.com') || apiConfig.provider === 'anthropic';
 
   const controller = new AbortController();

@@ -67,13 +67,20 @@ router.get('/models', async (req, res) => {
 // ─── Public: Get single model details ─────────────────────────────────────
 router.get('/models/:name', async (req, res) => {
   try {
-    const { data, error } = await supabase
-      .from('models')
-      .select('*')
-      .eq('name', req.params.name)
-      .eq('active', true)
-      .single()
-      .catch(() => ({ data: null, error: 'not found' }));
+    let data, error;
+    try {
+      const result = await supabase
+        .from('models')
+        .select('*')
+        .eq('name', req.params.name)
+        .eq('active', true)
+        .single();
+      data = result.data;
+      error = result.error;
+    } catch (e) {
+      data = null;
+      error = 'not found';
+    }
 
     if (data) {
       const { data: apis } = await supabase

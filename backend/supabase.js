@@ -73,11 +73,14 @@ async function initTables() {
   `;
 
   // Execute via REST API (raw SQL)
-  const { error } = await supabase.rpc('exec_sql', { query: sql }).catch(async () => {
-    // Fallback: try individual table creation via the API
+  let rpcResult;
+  try {
+    rpcResult = await supabase.rpc('exec_sql', { query: sql });
+  } catch (e) {
     console.log('Supabase: trying direct table creation...');
-    return { error: null };
-  });
+    rpcResult = { error: null };
+  }
+  const { error } = rpcResult;
 
   if (error) {
     console.log('Supabase: Tables may already exist or need manual setup:', error.message);
@@ -86,12 +89,17 @@ async function initTables() {
   }
 
   // Seed default admin if not exists
-  const { data: existingAdmin } = await supabase
-    .from('admin_users')
-    .select('id')
-    .eq('username', 'admin')
-    .single()
-    .catch(() => ({ data: null }));
+  let existingAdmin;
+  try {
+    const result = await supabase
+      .from('admin_users')
+      .select('id')
+      .eq('username', 'admin')
+      .single();
+    existingAdmin = result.data;
+  } catch (e) {
+    existingAdmin = null;
+  }
 
   if (!existingAdmin) {
     const crypto = require('crypto');
