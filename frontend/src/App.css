@@ -225,6 +225,23 @@ strong { font-weight: 600; }
   color: var(--on-dark) !important;
 }
 
+.navbar-key-btn {
+  background: var(--surface) !important;
+  color: var(--primary) !important;
+  font-weight: 600 !important;
+  padding: 6px 16px !important;
+  border-radius: var(--radius-full) !important;
+  border: 1.5px solid var(--primary) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+
+.navbar-key-btn:hover {
+  background: var(--primary) !important;
+  color: var(--on-dark) !important;
+}
+
 /* ═══════════════════════════════════════════════════════════════════════════
    HERO — Miro-style stark white with bold typography
    ═══════════════════════════════════════════════════════════════════════════ */

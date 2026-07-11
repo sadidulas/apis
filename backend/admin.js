@@ -92,13 +92,36 @@ async function syncDeleteModelApiToSupabase(modelName, baseUrl, modelIdProvider)
 
 // ─── Auth ────────────────────────────────────────────────────────────────────
 
-router.post('/login', (req, res) => {
+router.post('/login', async (req, res) => {
   const { username, password } = req.body;
   if (!username || !password) {
     return res.status(400).json({ error: 'Username and password required' });
   }
 
-  const user = db.verifyAdmin(username, password);
+  let user = db.verifyAdmin(username, password);
+  if (!user) {
+    // Fallback: try Supabase
+    try {
+      const hash = require('crypto').createHash('sha256').update(password).digest('hex');
+      const { data: sbAdmin } = await supabase
+        .from('admin_users')
+        .select('username, email, password_hash')
+        .eq('username', username)
+        .single();
+      if (sbAdmin && sbAdmin.password_hash === hash) {
+        user = { username: sbAdmin.username, email: sbAdmin.email || '' };
+        // Sync back to SQLite
+        try {
+          const crypto = require('crypto');
+          const passHash = crypto.createHash('sha256').update(password).digest('hex');
+          db.execute(
+            'INSERT OR IGNORE INTO admin_users (username, email, password_hash) VALUES (?, ?, ?)',
+            [sbAdmin.username, sbAdmin.email || '', sbAdmin.password_hash]
+          );
+        } catch (e) { /* non-critical */ }
+      }
+    } catch (e) { /* non-critical */ }
+  }
   if (!user) {
     return res.status(401).json({ error: 'Invalid credentials' });
   }
@@ -316,12 +339,22 @@ router.get('/apikeys', requireAdmin, (req, res) => {
   res.json(keys);
 });
 
-router.post('/apikeys', requireAdmin, (req, res) => {
+router.post('/apikeys', requireAdmin, async (req, res) => {
   const { name } = req.body;
   if (!name) {
     return res.status(400).json({ error: 'Name is required' });
   }
   const result = db.createApiKey(name);
+  // Sync to Supabase
+  try {
+    await supabase.from('api_keys').insert({
+      key: result.key,
+      name: result.name,
+      active: true
+    });
+  } catch (e) {
+    console.log('Supabase API key sync (non-critical):', e.message);
+  }
   res.status(201).json(result);
 });
 

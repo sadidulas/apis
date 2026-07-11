@@ -404,6 +404,7 @@ function getAdminProfile(username) {
 
 module.exports = {
   init,
+  execute,
   queryOne,
   queryAll,
   getAllModels,

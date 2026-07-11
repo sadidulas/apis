@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { Zap, Grid3X3, Beaker, BookOpen, LayoutDashboard, Shield, LogOut } from 'lucide-react';
+import { Zap, Grid3X3, Beaker, BookOpen, LayoutDashboard, Shield, Key, LogOut } from 'lucide-react';
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -30,7 +30,10 @@ export default function Navbar() {
           <NavLink to="/playground"><Beaker size={14} /><span>Playground</span></NavLink>
           <NavLink to="/docs"><BookOpen size={14} /><span>Docs</span></NavLink>
           {userToken ? (
-            <NavLink to="/dashboard"><LayoutDashboard size={14} /><span>Dashboard</span></NavLink>
+            <>
+              <NavLink to="/dashboard"><LayoutDashboard size={14} /><span>Dashboard</span></NavLink>
+              <NavLink to="/dashboard" className="navbar-key-btn"><Key size={14} /><span>Create API Key</span></NavLink>
+            </>
           ) : null}
           {adminToken ? (
             <NavLink to="/admin"><Shield size={14} /><span>Admin</span></NavLink>
